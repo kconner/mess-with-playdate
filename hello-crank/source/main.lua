@@ -85,6 +85,8 @@ function playdate.update()
 	if playdate.buttonIsPressed( playdate.kButtonLeft ) then
 		playerSprite:moveBy( -2, 0 )
 	end
+	
+	playerSprite:moveBy( 0, playdate.getCrankChange() / -10 )
 
 	-- Call the functions below in playdate.update() to draw sprites and keep
 	-- timers updated. (We aren't using timers in this example, but in most
