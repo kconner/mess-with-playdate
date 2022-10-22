@@ -8,6 +8,7 @@ import "CoreLibs/object"
 import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "CoreLibs/timer"
+import "CoreLibs/crank"
 
 -- Declaring this "gfx" shorthand will make your life easier. Instead of having
 -- to preface all graphics calls with "playdate.graphics", just use "gfx."
@@ -20,6 +21,8 @@ local gfx <const> = playdate.graphics
 -- several functions need to access it.
 
 local playerSprite = nil
+
+local mosaic = 0
 
 -- A function to set up our game environment.
 
@@ -73,20 +76,22 @@ function playdate.update()
 	-- Note that it is possible for more than one of these directions
 	-- to be pressed at once, if the user is pressing diagonally.
 
+	local speed = 1 << mosaic
+
 	if playdate.buttonIsPressed( playdate.kButtonUp ) then
-		playerSprite:moveBy( 0, -2 )
+		playerSprite:moveBy( 0, -speed )
 	end
 	if playdate.buttonIsPressed( playdate.kButtonRight ) then
-		playerSprite:moveBy( 2, 0 )
+		playerSprite:moveBy( speed, 0 )
 	end
 	if playdate.buttonIsPressed( playdate.kButtonDown ) then
-		playerSprite:moveBy( 0, 2 )
+		playerSprite:moveBy( 0, speed )
 	end
 	if playdate.buttonIsPressed( playdate.kButtonLeft ) then
-		playerSprite:moveBy( -2, 0 )
+		playerSprite:moveBy( -speed, 0 )
 	end
 	
-	playerSprite:moveBy( 0, playdate.getCrankChange() / -10 )
+	playerSprite:moveBy( 0, -speed * playdate.getCrankTicks(24) )
 
 	-- Call the functions below in playdate.update() to draw sprites and keep
 	-- timers updated. (We aren't using timers in this example, but in most
@@ -95,4 +100,25 @@ function playdate.update()
 	gfx.sprite.update()
 	playdate.timer.updateTimers()
 
+end
+
+function adjustMosaic(delta)
+	mosaic += delta
+	playdate.display.setMosaic(mosaic, mosaic)
+end
+
+function playdate.AButtonDown()
+	adjustMosaic(1)
+end
+
+function playdate.AButtonUp()
+	adjustMosaic(-1)
+end
+
+function playdate.BButtonDown()
+	adjustMosaic(2)
+end
+
+function playdate.BButtonUp()
+	adjustMosaic(-2)
 end
